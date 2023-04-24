@@ -1,48 +1,97 @@
 package ru.netology.test;
 
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.selenide.AllureSelenide;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.netology.data.ApiHelper;
-import ru.netology.data.DataHelper;
+import ru.netology.data.ApiUtils;
+import ru.netology.data.DataGenerator;
+import ru.netology.data.DbUtils;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static ru.netology.data.DataGenerator.Info.*;
 
 public class ApiTest {
-    DataHelper.CardInfo approvedCardInfo = DataHelper.getApprovedCard();
-    DataHelper.CardInfo declinedCardInfo = DataHelper.getDeclinedCard();
-
     @BeforeAll
-    static void setUp() {
-        RestAssured.filters(
-                new RequestLoggingFilter(),
-                new ResponseLoggingFilter(),
-                new AllureRestAssured());
+    static void setUpAll() {
+        SelenideLogger.addListener("allure", new AllureSelenide());
     }
 
-    @DisplayName("Запрос на покупку по карте со статусом APPROVED")
-    @Test
-    void shouldApprovePayment() {
-        ApiHelper.payDebitCard((approvedCardInfo));
+    @AfterAll
+    static void tearDownAll() {
+        SelenideLogger.removeListener("allure");
     }
 
-    @DisplayName("Запрос на кредит по карте со статусом APPROVED")
     @Test
-    void shouldApproveCredit() {
-        ApiHelper.payCreditCard(approvedCardInfo);
+    void shouldPayWithApprovedSuccessfully() {
+        var info = new DataGenerator.Info(getApprovedCardNumber(), getValidMonth(), getValidYear(), getValidOwner(), getValidCvc());
+        assertEquals("APPROVED", ApiUtils.getStatusOfGivenCards(info));
+        assertEquals("APPROVED", DbUtils.getPaymentStatus());
     }
 
-    @DisplayName("Запрос на покупку по карте со статусом DECLINED")
     @Test
-    void shouldDeclinePayment() {
-        ApiHelper.createPaymentError(declinedCardInfo);
+    void shouldPayWithApprovedAndCvvZeroesSuccessfully() {
+        var info = new DataGenerator.Info(getApprovedCardNumber(), getValidMonth(), getValidYear(), getValidOwner(), getCvcFromZeroes());
+        assertEquals("APPROVED", ApiUtils.getStatusOfGivenCards(info));
+        assertEquals("APPROVED", DbUtils.getPaymentStatus());
     }
 
-    @DisplayName("Запрос на кредит по карте со статусом DECLINED")
     @Test
-    void shouldDeclineCredit() {
-        ApiHelper.createCreditError(declinedCardInfo);
+    void shouldNotPayWithDeclined() {
+        var info = new DataGenerator.Info(getDeclinedCardNumber(), getValidMonth(), getValidYear(), getValidOwner(), getValidCvc());
+        assertEquals("DECLINED", ApiUtils.getStatusOfGivenCards(info));
+        assertEquals("DECLINED", DbUtils.getPaymentStatus());
+    }
+
+    @Test
+    void shouldNotPayWithUnknownCardNumber() {
+        var info = new DataGenerator.Info(getUnknownCardNumber(), getValidMonth(), getValidYear(), getValidOwner(), getValidCvc());
+        ApiUtils.getStatusCodeOfUnknownCards(info);
+    }
+
+    @Test
+    void shouldNotPayWithCardNumberFromZeroes() {
+        var info = new DataGenerator.Info(getCardNumberFromZeroes(), getValidMonth(), getValidYear(), getValidOwner(), getValidCvc());
+        ApiUtils.getStatusCodeOfUnknownCards(info);
+    }
+
+    @Test
+    void shouldCreditPayWithApprovedSuccessfully() {
+        var info = new DataGenerator.Info(getApprovedCardNumber(), getValidMonth(), getValidYear(), getValidOwner(), getValidCvc());
+        assertEquals("APPROVED", ApiUtils.getStatusOfGivenCardsCredit(info));
+        assertEquals("APPROVED", DbUtils.getPaymentStatus());
+        assertEquals("APPROVED", DbUtils.getPaymentAmount());
+        assertEquals("APPROVED", DbUtils.getCreditStatus());
+    }
+
+    @Test
+    void shouldCreditPayWithApprovedAndCvvZeroesSuccessfully() {
+        var info = new DataGenerator.Info(getApprovedCardNumber(), getValidMonth(), getValidYear(), getValidOwner(), getCvcFromZeroes());
+        assertEquals("APPROVED", ApiUtils.getStatusOfGivenCardsCredit(info));
+        assertEquals("APPROVED", DbUtils.getPaymentStatus());
+        assertEquals("APPROVED", DbUtils.getPaymentAmount());
+        assertEquals("APPROVED", DbUtils.getCreditStatus());
+    }
+
+    @Test
+    void shouldNotCreditPayWithDeclined() {
+        var info = new DataGenerator.Info(getDeclinedCardNumber(), getValidMonth(), getValidYear(), getValidOwner(), getValidCvc());
+        assertEquals("DECLINED", ApiUtils.getStatusOfGivenCardsCredit(info));
+        assertEquals("DECLINED", DbUtils.getPaymentStatus());
+        assertEquals("APPROVED", DbUtils.getPaymentAmount());
+        assertEquals("APPROVED", DbUtils.getCreditStatus());
+    }
+
+    @Test
+    void shouldNotCreditPayWithUnknownCardNumber() {
+        var info = new DataGenerator.Info(getUnknownCardNumber(), getValidMonth(), getValidYear(), getValidOwner(), getValidCvc());
+        ApiUtils.getStatusCodeOfUnknownCardsCredit(info);
+    }
+
+    @Test
+    void shouldNotCreditPayWithCardNumberFromZeroes() {
+        var info = new DataGenerator.Info(getCardNumberFromZeroes(), getValidMonth(), getValidYear(), getValidOwner(), getValidCvc());
+        ApiUtils.getStatusCodeOfUnknownCardsCredit(info);
     }
 }

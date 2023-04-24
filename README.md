@@ -26,11 +26,11 @@ git clone https://github.com/Kotemako/diplom.git
 
 **Для MySQL:**
 
-java -jar ./artifacts/aqa-shop.jar -- spring.datasource.url=jdbc:mysql://localhost:3306/app
+java "-Dspring.datasource.url=jdbc:mysql://localhost:3306/db_mysql" -jar artifacts/aqa-shop.jar
 
 **Для PostgreSQL:**
 
-java -jar ./artifacts/aqa-shop.jar --spring.datasource.url=jdbc:postgresql://localhost:5432/app
+java "-Dspring.datasource.url=jdbc:postgresql://localhost:5432/db_postgresql" -jar artifacts/aqa-shop.jar
 
 3. В новой вкладке терминала в IDEA запустить тесты:
 

@@ -7,9 +7,8 @@ ___
 ### Количество тест-кейсов
 В ходе тестирования было автоматизировано 50 тестов.
 
-![![Screenshot_1](https://user-images.githubusercontent.com/104633757/233910737-3ecff4a5-0fcb-4294-beee-fd6305b99566.jpg)](C:\Users\Kotem\Desktop\Screenshot_1.jpg)
+Из них:![Screenshot_1](https://user-images.githubusercontent.com/104633757/233910868-0603e0bd-e358-47e8-aeed-9454d37a00e7.jpg)
 
-Из них:
 
 успешных оказалось 31 тест-кейс (62,00%);  
 не прошёл 19 тест-кейс (38,00%).

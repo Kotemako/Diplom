@@ -7,7 +7,7 @@ ___
 ### Количество тест-кейсов
 В ходе тестирования было автоматизировано 50 тестов.
 
-![](C:\Users\Kotem\Desktop\Screenshot_1.jpg)
+![![Screenshot_1](https://user-images.githubusercontent.com/104633757/233910737-3ecff4a5-0fcb-4294-beee-fd6305b99566.jpg)](C:\Users\Kotem\Desktop\Screenshot_1.jpg)
 
 Из них:
 
